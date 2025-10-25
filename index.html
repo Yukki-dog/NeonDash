@@ -27,6 +27,7 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+        animation: glow 2s infinite alternate;
       }
 
       button {
@@ -47,31 +48,77 @@
         box-shadow: 0 0 25px rgba(240, 130, 255, 0.9);
       }
 
+      .level-menu, .credits-box {
+        display: none;
+        margin-top: 20px;
+        animation: fadeIn 1s ease;
+      }
+
+      .level-menu button {
+        background: linear-gradient(90deg, #fa71cd, #6e85ff);
+      }
+
       @keyframes fadeIn {
         from { opacity: 0; transform: translateY(-20px); }
         to { opacity: 1; transform: translateY(0); }
       }
+
+      @keyframes glow {
+        from { text-shadow: 0 0 15px rgba(255, 0, 255, 0.5); }
+        to { text-shadow: 0 0 35px rgba(200, 255, 255, 1); }
+      }
+
+      .credits-box {
+        background: rgba(30, 0, 50, 0.8);
+        padding: 20px;
+        border-radius: 12px;
+        max-width: 400px;
+        margin: 20px auto 0;
+        color: #cfcfff;
+      }
+
     </style>
   </head>
   <body>
     <div class="menu">
       <h1>💫 Neon Cube Dash 💫</h1>
       <button onclick="startGame()">Играть</button>
-      <button onclick="openLevels()">Выбор уровня</button>
-      <button onclick="showCredits()">Об игре</button>
+      <button onclick="toggleLevels()">Выбор уровня</button>
+      <button onclick="toggleCredits()">Об игре</button>
+
+      <div class="level-menu" id="levelMenu">
+        <button onclick="selectLevel('easy')">Лёгкий</button>
+        <button onclick="selectLevel('normal')">Средний</button>
+        <button onclick="selectLevel('hard')">Сложный</button>
+      </div>
+
+      <div class="credits-box" id="creditsBox">
+        <h2>О Neon Cube Dash</h2>
+        <p>Neon Cube Dash — это динамичная неоновая аркадная игра, где вы управляете кубом, прыгаете по платформам, избегаете препятствий и порталов. Цель — пройти уровень до конца, собирая очки и преодолевая сложности. Каждый уровень имеет свою скорость и сложность, а графика и эффекты полностью выполнены в фиолетово-сине-розовой неоновой палитре. Музыка помогает ощущать ритм прыжков и ускорения.</p>
+      </div>
     </div>
 
     <script>
+      const levelMenu = document.getElementById('levelMenu');
+      const creditsBox = document.getElementById('creditsBox');
+
+      // Сохраняем выбранный уровень в localStorage
+      function selectLevel(level) {
+        localStorage.setItem('selectedLevel', level);
+        startGame();
+      }
+
       function startGame() {
-        window.location.href = 'game.html';
+        const level = localStorage.getItem('selectedLevel') || 'normal';
+        window.location.href = `game.html?level=${level}`;
       }
 
-      function openLevels() {
-        alert('Меню уровней появится в следующей версии ✨');
+      function toggleLevels() {
+        levelMenu.style.display = levelMenu.style.display === 'block' ? 'none' : 'block';
       }
 
-      function showCredits() {
-        alert('Neon Cube Dash — создано специально для тебя 💜');
+      function toggleCredits() {
+        creditsBox.style.display = creditsBox.style.display === 'block' ? 'none' : 'block';
       }
     </script>
   </body>
