@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neon Cube Dash - Game</title>
+<style>
+body { margin: 0; overflow: hidden; background: radial-gradient(circle at center, #1a002b, #050010); }
+canvas { display: block; margin: 0 auto; background: radial-gradient(circle at center, #1a002b, #050010); }
+</style>
+</head>
+<body>
+<canvas id="gameCanvas"></canvas>
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// Музыка
+let music = new Audio('music.m4a');
+music.loop = true;
+music.volume = 0.15;
+let musicStarted = false;
+window.addEventListener('click', () => { if(!musicStarted){ music.play(); musicStarted = true; } }, { once: true });
+
+// Игрок
+class Player {
+  constructor(){
+    this.width = 40; this.height = 40;
+    this.x = 150; this.y = -this.height; this.dy = 0;
+    this.gravity = 0.8; this.jumpPower = 15;
+    this.doubleJump = 0; this.maxDoubleJump = 2;
+    this.tail = [];
+  }
+  draw(){
+    let grad = ctx.createLinearGradient(this.x, this.y, this.x+this.width, this.y+this.height);
+    grad.addColorStop(0, '#c471f5'); grad.addColorStop(0.5, '#fa71cd'); grad.addColorStop(1, '#6e85ff');
+    ctx.fillStyle = grad; ctx.shadowColor = '#fa71cd'; ctx.shadowBlur = 15;
+    ctx.fillRect(this.x, this.y, this.width, this.height);
+    // хвостик
+    for(let i=0;i<this.tail.length;i++){
+      ctx.globalAlpha = 0.5*(1-i/this.tail.length);
+      ctx.fillRect(this.tail[i].x, this.tail[i].y, this.width, this.height);
+    }
+    ctx.globalAlpha =1;
+    this.tail.unshift({x:this.x,y:this.y}); if(this.tail.length>5) this.tail.pop();
+  }
+  update(){
+    this.dy += this.gravity; this.y += this.dy;
+    platforms.forEach(p=>{
+      if(this.x+this.width>p.x && this.x<p.x+p.width && this.y+this.height>p.y && this.y+this.height<this.y+this.dy+this.height && this.dy>=0){
+        this.y = p.y - this.height; this.dy=0; this.doubleJump=0;
+        for(let i=0;i<5;i++){ particles.push(new Particle(this.x+this.width/2, this.y+this.height, Math.random()*2-1, Math.random()*-2-1)); }
+      }
+    });
+    if(this.y+this.height>canvas.height-lavaHeight){ this.y = canvas.height-lavaHeight-this.height; this.dy=0; this.doubleJump=0; }
+    this.draw();
+  }
+  jump(){
+    if(this.doubleJump<this.maxDoubleJump){
+      this.dy=-this.jumpPower*(this.doubleJump==0?1:1.3); this.doubleJump++;
+      for(let i=0;i<7;i++){ particles.push(new Particle(this.x+this.width/2, this.y+this.height, Math.random()*2-1, Math.random()*-2-1)); }
+    }
+  }
+}
+
+class Particle{
+  constructor(x,y,dx,dy){ this.x=x; this.y=y; this.dx=dx; this.dy=dy; this.life=40; }
+  update(){ this.x+=this.dx; this.y+=this.dy; this.life--; this.draw(); }
+  draw(){ ctx.fillStyle='rgba(255,255,255,'+this.life/40+')'; ctx.fillRect(this.x,this.y,4,4); }
+}
+
+let player = new Player();
+let particles=[];
+
+// Платформы
+class Platform{
+  constructor(x,y,width,type='normal'){ this.x=x; this.y=y; this.width=width; this.height=20; this.type=type; }
+  draw(){
+    if(this.type=='lava'){ ctx.fillStyle='#ff4500'; }
+    else { let grad=ctx.createLinearGradient(this.x,this.y,this.x+this.width,this.y+this.height); grad.addColorStop(0,'#6e85ff'); grad.addColorStop(1,'#c471f5'); ctx.fillStyle=grad; }
+    ctx.shadowColor='#fa71cd'; ctx.shadowBlur=10;
+    ctx.fillRect(this.x,this.y,this.width,this.height);
+    ctx.shadowBlur=0;
+  }
+}
+
+let platforms=[]; let lavaHeight=50;
+function generatePlatforms(){
+  let x=0; let y=canvas.height-100;
+  // Первые 10 секунд ровная линия с шипами
+  for(let i=0;i<20;i++){ platforms.push(new Platform(x,y,150)); x+=150; }
+  // Далее платформы с прикреплением
+  for(let i=0;i<50;i++){
+    let width=100+Math.random()*100;
+    let deltaY=(Math.random()*100-50); y=Math.min(canvas.height-150, Math.max(150,y+deltaY));
+    let type=Math.random()<0.1?'lava':'normal';
+    platforms.push(new Platform(x,y,width,type));
+    x+=width+Math.random()*50;
+  }
+}
+generatePlatforms();
+
+function drawLava(){ ctx.fillStyle='#ff4500'; ctx.fillRect(0,canvas.height-lavaHeight,canvas.width,lavaHeight); }
+
+// Игровой цикл
+function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  drawLava();
+  platforms.forEach(p=>p.draw());
+  player.update();
+  for(let i=particles.length-1;i>=0;i--){ particles[i].update(); if(particles[i].life<=0) particles.splice(i,1); }
+  requestAnimationFrame(animate);
+}
+animate();
+
+// Прыжки
+window.addEventListener('keydown', e=>{ if(e.code==='Space'||e.code==='ArrowUp'){ player.jump(); } });
+window.addEventListener('mousedown', ()=>{ player.jump(); });
+</script>
+</body>
+</html>
