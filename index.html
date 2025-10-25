@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Neon Cube Dash</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
+        background: radial-gradient(circle at center, #1a002b, #050010);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .menu {
+        text-align: center;
+        animation: fadeIn 2s ease;
+      }
+
+      h1 {
+        font-size: 3em;
+        background: linear-gradient(90deg, #c471f5, #fa71cd, #6e85ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+      }
+
+      button {
+        background: linear-gradient(90deg, #6e85ff, #c471f5);
+        border: none;
+        border-radius: 12px;
+        padding: 12px 40px;
+        margin: 10px;
+        color: white;
+        font-size: 1.2em;
+        cursor: pointer;
+        box-shadow: 0 0 15px rgba(200, 100, 255, 0.6);
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      button:hover {
+        transform: scale(1.08);
+        box-shadow: 0 0 25px rgba(240, 130, 255, 0.9);
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="menu">
+      <h1>💫 Neon Cube Dash 💫</h1>
+      <button onclick="startGame()">Играть</button>
+      <button onclick="openLevels()">Выбор уровня</button>
+      <button onclick="showCredits()">Об игре</button>
+    </div>
+
+    <script>
+      function startGame() {
+        window.location.href = 'game.html';
+      }
+
+      function openLevels() {
+        alert('Меню уровней появится в следующей версии ✨');
+      }
+
+      function showCredits() {
+        alert('Neon Cube Dash — создано специально для тебя 💜');
+      }
+    </script>
+  </body>
+</html>
